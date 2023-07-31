@@ -35,7 +35,7 @@ type NativeExports = {
   extractValue: (label: string, locale?: string) => number
 }
 
-type MoneyInputProps = TextInputProps & {
+type MoneyInputProps = Omit<TextInputProps, 'value' | 'defaultValue' | 'onChangeText'> & {
   value?: number
   defaultValue?: number
   locale?: string

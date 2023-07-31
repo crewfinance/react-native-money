@@ -106,7 +106,10 @@ open class MoneyMask {
 
          fun getFormatter(localeIdentifer: String?): NumberFormat {
              val locale = getLocale(localeIdentifer)
-             val format: NumberFormat = NumberFormat.getCurrencyInstance(locale)
+             val format: NumberFormat = NumberFormat.getNumberInstance(locale)
+             format.setMaximumFractionDigits(2)
+             format.setMinimumFractionDigits(2)
+             format.setGroupingUsed(true)
              return format
          }
 
