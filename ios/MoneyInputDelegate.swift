@@ -52,6 +52,9 @@ open class MoneyInputDelegate: NSObject, UITextFieldDelegate {
     }
 
     open func textFieldDidBeginEditing(_ textField: UITextField) {
+        DispatchQueue.main.async {
+            textField.selectedTextRange = textField.textRange(from: textField.endOfDocument, to: textField.endOfDocument)
+        }
         listener?.textFieldDidBeginEditing?(textField)
     }
 
