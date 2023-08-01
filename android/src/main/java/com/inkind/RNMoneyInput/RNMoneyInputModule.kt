@@ -100,7 +100,7 @@ open class MoneyMask {
          fun getLocale(identifier: String?): Locale? {
              val localeParts = identifier?.split('_')
              val language = localeParts?.get(0) ?: "en"
-             val country = localeParts?.get(1)
+             val country = localeParts?.get(1) ?: "us"
              return Locale(language, country)
          }
 
