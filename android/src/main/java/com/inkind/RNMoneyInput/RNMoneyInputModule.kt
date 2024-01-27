@@ -241,7 +241,7 @@ open class MoneyTextWatcher(
     fun tidyCaretPosition() {
         try {
             val content = field.get()?.text.toString()
-            if (content?.length > 0) {
+            if (content?.length ?: 0 > 0) {
                 val isSuffixSymbol = content.last().isDigit() == false
                 if (isSuffixSymbol) {
                     this.caretPosition = min(this.caretPosition,content.length - 1)
