@@ -18,15 +18,16 @@ class TextInputMask: NSObject, RCTBridgeModule, MoneyInputListener {
     var masks: [String: MoneyInputDelegate] = [:]
     var listeners: [String: MoneyInputListener] = [:]
     
-    @objc(formatMoney:locale:)
-    func formatMoney(value: NSNumber, locale: NSString?) -> String {
-        let (format, _) = MoneyMask.mask(value: value.doubleValue, locale: String(locale ?? "en_US"))
+    @objc(formatMoney:showFractionDigits:locale:)
+    func formatMoney(value: NSNumber, showFractionDigits: Bool, locale: NSString?) -> String {
+        let (format, _) = MoneyMask.mask(value: value.doubleValue, locale: String(locale ?? "en_US"), showFractionDigits: showFractionDigits)
         return format
     }
+
     
-    @objc(extractValue:locale:)
-    func extractValue(value: NSString, locale: NSString?) -> NSNumber {
-        return NSNumber(value: MoneyMask.unmask(input: String(value), locale: String(locale ?? "en_US")))
+    @objc(extractValue:showFractionDigits:locale:)
+    func extractValue(value: NSString, showFractionDigits: Bool, locale: NSString?) -> NSNumber {
+        return NSNumber(value: MoneyMask.unmask(input: String(value), locale: String(locale ?? "en_US"), showFractionDigits: showFractionDigits))
     }
     
     @objc(initializeMoneyInput:options:)
@@ -37,7 +38,8 @@ class TextInputMask: NSObject, RCTBridgeModule, MoneyInputListener {
                 let textView = view.backedTextInputView as! RCTUITextField
             
                 let locale = options["locale"] as? String
-                let maskedDelegate = MoneyInputDelegate(localeIdentifier: locale) { (_, value) in
+                let showFractionDigits = options["showFractionDigits"] as? Bool
+                let maskedDelegate = MoneyInputDelegate(localeIdentifier: locale, showFractionDigits: showFractionDigits) { (_, value) in
                     let textField = textView as! UITextField
                     view.onChange?([
                         "text": value,

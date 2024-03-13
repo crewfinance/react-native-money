@@ -35,14 +35,17 @@ open class MoneyInputDelegate: NSObject, UITextFieldDelegate {
     open weak var listener: MoneyInputListener?
     open var onChangeListener: ((_ textField: UITextField, _ value: String) -> ())?
     open var localeIdentifier = Locale.current.identifier
+    open var showFractionDigits = true
     
     
     public init(
         localeIdentifier: String?,
+        showFractionDigits: Bool?,
         onMaskedTextChangedCallback: ((_ textInput: UITextInput, _ value: String) -> ())? = nil
        ) {
            self.onChangeListener = onMaskedTextChangedCallback
            if (localeIdentifier != nil) { self.localeIdentifier = localeIdentifier! }
+           self.showFractionDigits = showFractionDigits ?? true;
            super.init()
        }
     
@@ -94,8 +97,8 @@ open class MoneyInputDelegate: NSObject, UITextFieldDelegate {
         let updatedText: String = replaceCharacters(inText: originalString, range: range, withCharacters: string)
         
         // Convert text input to formatted string
-        let value = MoneyMask.unmask(input: updatedText, locale: self.localeIdentifier)
-        let (priceString, formatter) = MoneyMask.mask(value: value, locale: self.localeIdentifier)
+        let value = MoneyMask.unmask(input: updatedText, locale: self.localeIdentifier, showFractionDigits: self.showFractionDigits)
+        let (priceString, formatter) = MoneyMask.mask(value: value, locale: self.localeIdentifier, showFractionDigits: self.showFractionDigits)
         
         // Create reference to end of number section of string
         let isSuffixSymbol = priceString.last?.isNumber == false
@@ -179,18 +182,24 @@ open class MoneyInputDelegate: NSObject, UITextFieldDelegate {
 
 class MoneyMask {
     // Get the correct formatter using the provided options
-    static func getFormatter(locale: String) -> NumberFormatter {
+    static func getFormatter(locale: String, showFractionDigits: Bool) -> NumberFormatter {
         let currencyFormatter = NumberFormatter()
         currencyFormatter.locale = Locale(identifier: locale)
         currencyFormatter.numberStyle = .decimal
+
+        if (showFractionDigits) {
+            currencyFormatter.minimumFractionDigits = 2
+            currencyFormatter.maximumFractionDigits = 2
+        }
+
         return currencyFormatter
     }
     
     // Converts a malformed input string into a double representation of money
-    static func unmask(input: String, locale: String) -> Double {
+    static func unmask(input: String, locale: String, showFractionDigits: Bool) -> Double {
         // Remove any non-numeric chars and convert to cents in a double type
         let numbers = input.filter("0123456789".contains)
-        let currencyFormatter = getFormatter(locale: locale)
+        let currencyFormatter = getFormatter(locale: locale, showFractionDigits: showFractionDigits)
         let value = Double(numbers) ?? Double(0)
         
         // Add optional support for fractional digits
@@ -203,9 +212,9 @@ class MoneyMask {
     }
     
     // Converts a double of monet into a pretty formatted string
-    static func mask(value: Double, locale: String) -> (String, NumberFormatter)  {
-        // Create a currency formmater from locale
-        let currencyFormatter = getFormatter(locale: locale)
+    static func mask(value: Double, locale: String, showFractionDigits: Bool) -> (String, NumberFormatter)  {
+        // Create a currency formatter from locale
+        let currencyFormatter = getFormatter(locale: locale, showFractionDigits: showFractionDigits)
         
         // We'll force unwrap with the !, if you've got defined data you may need more error checking
         return (currencyFormatter.string(from: NSNumber(value: value))!, currencyFormatter)

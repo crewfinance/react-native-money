@@ -22,13 +22,13 @@ class RNMoneyInputModule(private val context: ReactApplicationContext) : ReactCo
     override fun getName() = "RNMoneyInput"
 
     @ReactMethod(isBlockingSynchronousMethod = true)
-    fun formatMoney(value: Double, locale: String?): String {
-        return MoneyMask.mask(value, locale)
+    fun formatMoney(value: Double, showFractionDigits: Boolean, locale: String?): String {
+        return MoneyMask.mask(value, locale, showFractionDigits)
     }
 
     @ReactMethod(isBlockingSynchronousMethod = true)
-    fun extractValue(label: String, locale: String?): Double {
-        return MoneyMask.unmask(label, locale)
+    fun extractValue(label: String, showFractionDigits: Boolean, locale: String?): Double {
+        return MoneyMask.unmask(label, locale, showFractionDigits)
     }
 
     @ReactMethod
@@ -95,26 +95,31 @@ internal class MoneyTextListener(
 
 open class MoneyMask {
      companion object {
-         val defaultLocale = "${Locale.getDefault().displayLanguage}_${Locale.getDefault().country}"
-
          fun getLocale(identifier: String?): Locale {
              val localeParts = identifier?.split('_')
-             val language = localeParts?.get(0) ?: "en"
+             val language = localeParts?.get( showFractionDigits: Boolean,) ?: "en"
              val country = localeParts?.get(1) ?: "US"
              return Locale(language, country)
          }
 
-         fun getFormatter(localeIdentifier: String?): NumberFormat {
+         fun getFormatter(localeIdentifier: String? showFractionDigits: Boolean,): NumberFormat {
              val locale = getLocale(localeIdentifier)
-             return NumberFormat.getNumberInstance(locale)
+             val format: NumberFormat = NumberFormat.getNumberInstance(locale)
+
+             if (showFractionDigits) {
+                format.setMaximumFractionDigits(2)
+                format.setMinimumFractionDigits(2)
+             }
+
+             return format
          }
 
-         fun unmask(text: String, locale: String?): Double {
+         fun unmask(text: String, locale: String?, showFractionDigits: Boolean? = true): Double {
              val re = "[^0-9]".toRegex()
              val numbers = re.replace(text, "")
              if (numbers.isNotEmpty()) {
                  val value = numbers.toDouble()
-                 val formatter = getFormatter(locale)
+                 val formatter = getFormatter(locale, showFractionDigits)
                  if (formatter.maximumFractionDigits > 0) {
                      val degrees = formatter.maximumFractionDigits.toDouble()
                      return (value/ 10.0.pow(degrees))
@@ -126,8 +131,8 @@ open class MoneyMask {
              return 0.0
          }
 
-         fun mask(value: Double, locale: String?): String {
-             return getFormatter(locale).format(value)
+         fun mask(value: Double, locale: String?, showFractionDigits: Boolean? = true): String {
+             return getFormatter(locale, showFractionDigits).format(value)
          }
      }
 }

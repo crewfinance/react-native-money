@@ -4,9 +4,11 @@
 
 
 RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(formatMoney:(nonnull NSNumber) value
-                                        locale: (NSString *) locale)
+                                        showFractionDigits:(nonnull BOOL) showFractionDigits
+                                        locale:(NSString *) locale)
 RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(extractValue:(nonnull NSString) value
-                                        locale: (NSString *) local)
+                                        showFractionDigits:(nonnull BOOL) showFractionDigits
+                                        locale:(NSString *) local)
 
 RCT_EXTERN_METHOD(initializeMoneyInput:(nonnull NSNumber *)reactNode
                   options:(NSDictionary *)option)

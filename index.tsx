@@ -27,8 +27,8 @@ To fix this issue try these steps:
 
 type NativeExports = {
   initializeMoneyInput: (reactNode: Number, options: any) => void
-  formatMoney: (value: Number, locale?: string) => string
-  extractValue: (label: string, locale?: string) => number
+  formatMoney: (value: Number, showFractionDigits: boolean, locale?: string) => string
+  extractValue: (label: string, showFractionDigits: boolean, locale?: string) => number
 }
 
 type MoneyInputProps = Omit<
@@ -38,6 +38,7 @@ type MoneyInputProps = Omit<
   value?: number
   defaultValue?: number
   locale?: string
+  showFractionDigits?: boolean
   onChangeText?: (value: number, label: string) => void
 }
 
@@ -47,11 +48,11 @@ interface Handles {
 }
 
 const MoneyInput = forwardRef<Handles, MoneyInputProps>(
-  ({defaultValue, value, onChangeText, locale, onFocus, ...rest}, ref) => {
+  ({defaultValue, value, onChangeText, locale, showFractionDigits = true, onFocus, ...rest}, ref) => {
     // Create a default input
     const [defaultMoney] = useState(defaultValue ?? value)
     const [defaultLabel] = useState(
-      defaultMoney != null ? formatMoney(defaultMoney, locale) : ''
+      defaultMoney != null ? formatMoney(defaultMoney, showFractionDigits, locale) : ''
     )
 
     // Keep a reference to the actual text input
@@ -63,14 +64,14 @@ const MoneyInput = forwardRef<Handles, MoneyInputProps>(
     useEffect(() => {
       if (value != null && value != rawValue) {
         setValue(value)
-        setLabel(formatMoney(value, locale))
+        setLabel(formatMoney(value, showFractionDigits, locale))
       }
     }, [value, rawValue])
 
     // Convert TextInput to MoneyInput native type
     useEffect(() => {
       const nodeId = findNodeHandle(input.current)
-      if (nodeId) initializeMoneyInput(nodeId, {locale})
+      if (nodeId) initializeMoneyInput(nodeId, {locale, showFractionDigits})
     }, [locale])
 
     // Create a false ref interface
@@ -91,13 +92,13 @@ const MoneyInput = forwardRef<Handles, MoneyInputProps>(
         onFocus={e => {
           if (defaultLabel == '' && !rawValue) {
             setValue(0)
-            setLabel(formatMoney(0, locale))
+            setLabel(formatMoney(0, showFractionDigits, locale))
           }
 
           onFocus?.(e)
         }}
         onChangeText={async label => {
-          const computedValue = extractValue(label, locale)
+          const computedValue = extractValue(label, showFractionDigits, locale)
           setLabel(label)
           setValue(computedValue)
           onChangeText?.(computedValue, label)
