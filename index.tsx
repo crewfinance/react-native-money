@@ -14,11 +14,7 @@ import {
 } from 'react-native'
 
 const {RNMoneyInput} = NativeModules as {RNMoneyInput: NativeExports}
-export const {
-  initializeMoneyInput,
-  extractValue,
-  formatMoney,
-} = RNMoneyInput
+export const {initializeMoneyInput, extractValue, formatMoney} = RNMoneyInput
 
 if (!RNMoneyInput) {
   throw new Error(`NativeModule: RNMoneyInput is null.
@@ -35,7 +31,10 @@ type NativeExports = {
   extractValue: (label: string, locale?: string) => number
 }
 
-type MoneyInputProps = Omit<TextInputProps, 'value' | 'defaultValue' | 'onChangeText'> & {
+type MoneyInputProps = Omit<
+  TextInputProps,
+  'value' | 'defaultValue' | 'onChangeText'
+> & {
   value?: number
   defaultValue?: number
   locale?: string
@@ -50,29 +49,28 @@ interface Handles {
 const MoneyInput = forwardRef<Handles, MoneyInputProps>(
   ({defaultValue, value, onChangeText, locale, onFocus, ...rest}, ref) => {
     // Create a default input
-    const [ defaultMoney ] = useState(defaultValue ?? value)
-    const [ defaultLabel ] = useState(defaultMoney != null ? formatMoney(
-      defaultMoney,
-      locale
-    ) : '')
+    const [defaultMoney] = useState(defaultValue ?? value)
+    const [defaultLabel] = useState(
+      defaultMoney != null ? formatMoney(defaultMoney, locale) : ''
+    )
 
     // Keep a reference to the actual text input
     const input = useRef<TextInput>(null)
-    const [rawValue, setValue] = useState<number|undefined>(defaultMoney)
+    const [rawValue, setValue] = useState<number | undefined>(defaultMoney)
     const [label, setLabel] = useState<string>(defaultLabel)
 
     // Keep numeric prop in sync with out state
     useEffect(() => {
-        if (value != null && value != rawValue) {
-            setValue(value)
-            setLabel(formatMoney(value, locale));
-        }
+      if (value != null && value != rawValue) {
+        setValue(value)
+        setLabel(formatMoney(value, locale))
+      }
     }, [value, rawValue])
 
     // Convert TextInput to MoneyInput native type
     useEffect(() => {
       const nodeId = findNodeHandle(input.current)
-      if (nodeId) initializeMoneyInput(nodeId, { locale })
+      if (nodeId) initializeMoneyInput(nodeId, {locale})
     }, [locale])
 
     // Create a false ref interface
@@ -91,9 +89,9 @@ const MoneyInput = forwardRef<Handles, MoneyInputProps>(
         ref={input}
         value={label}
         onFocus={e => {
-          if (defaultLabel == "" && !rawValue) {
+          if (defaultLabel == '' && !rawValue) {
             setValue(0)
-            setLabel(formatMoney(0, locale));
+            setLabel(formatMoney(0, locale))
           }
 
           onFocus?.(e)

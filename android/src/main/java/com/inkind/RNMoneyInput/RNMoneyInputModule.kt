@@ -97,20 +97,16 @@ open class MoneyMask {
      companion object {
          val defaultLocale = "${Locale.getDefault().displayLanguage}_${Locale.getDefault().country}"
 
-         fun getLocale(identifier: String?): Locale? {
+         fun getLocale(identifier: String?): Locale {
              val localeParts = identifier?.split('_')
              val language = localeParts?.get(0) ?: "en"
-             val country = localeParts?.get(1) ?: "us"
+             val country = localeParts?.get(1) ?: "US"
              return Locale(language, country)
          }
 
-         fun getFormatter(localeIdentifer: String?): NumberFormat {
-             val locale = getLocale(localeIdentifer)
-             val format: NumberFormat = NumberFormat.getNumberInstance(locale)
-             format.setMaximumFractionDigits(2)
-             format.setMinimumFractionDigits(2)
-             format.setGroupingUsed(true)
-             return format
+         fun getFormatter(localeIdentifier: String?): NumberFormat {
+             val locale = getLocale(localeIdentifier)
+             return NumberFormat.getNumberInstance(locale)
          }
 
          fun unmask(text: String, locale: String?): Double {
@@ -131,8 +127,7 @@ open class MoneyMask {
          }
 
          fun mask(value: Double, locale: String?): String {
-             val format = getFormatter(locale)
-             return format.format(value)
+             return getFormatter(locale).format(value)
          }
      }
 }

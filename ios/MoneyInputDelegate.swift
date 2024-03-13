@@ -181,10 +181,6 @@ class MoneyMask {
     // Get the correct formatter using the provided options
     static func getFormatter(locale: String) -> NumberFormatter {
         let currencyFormatter = NumberFormatter()
-        currencyFormatter.usesGroupingSeparator = true
-        currencyFormatter.numberStyle = .decimal
-        currencyFormatter.minimumFractionDigits = 2
-        currencyFormatter.maximumFractionDigits = 2
         currencyFormatter.locale = Locale(identifier: locale)
         return currencyFormatter
     }
