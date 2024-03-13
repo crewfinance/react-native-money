@@ -182,6 +182,7 @@ class MoneyMask {
     static func getFormatter(locale: String) -> NumberFormatter {
         let currencyFormatter = NumberFormatter()
         currencyFormatter.locale = Locale(identifier: locale)
+        currencyFormatter.numberStyle = .decimal
         return currencyFormatter
     }
     
