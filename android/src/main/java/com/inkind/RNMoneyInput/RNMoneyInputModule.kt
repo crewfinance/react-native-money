@@ -37,8 +37,8 @@ class RNMoneyInputModule(private val context: ReactApplicationContext) : ReactCo
         // the queue might be removing the view we're looking to update.
         context.getNativeModule(UIManagerModule::class.java)!!.prependUIBlock { nativeViewHierarchyManager ->
             // The view needs to be resolved before running on the UI thread because there's a delay before the UI queue can pick up the runnable.
-            val editText = nativeViewHierarchyManager.resolveView(tag) as EditText
             context.runOnUiQueueThread {
+                val editText = nativeViewHierarchyManager.resolveView(tag) as EditText
                 MoneyTextListener.install(
                     field = editText,
                         locale = options.getString("locale")
@@ -78,6 +78,7 @@ internal class MoneyTextListener(
             field: EditText,
             locale: String?,
         ) {
+          synchronized(field) {
             if (field.getTag(TEXT_CHANGE_LISTENER_TAG_KEY) != null) {
                 field.removeTextChangedListener(field.getTag(TEXT_CHANGE_LISTENER_TAG_KEY) as TextWatcher)
             }
@@ -89,6 +90,7 @@ internal class MoneyTextListener(
             field.setOnTouchListener(listener)
             field.setOnFocusChangeListener(listener)
             field.setTag(TEXT_CHANGE_LISTENER_TAG_KEY, listener)
+          }
         }
     }
 }
