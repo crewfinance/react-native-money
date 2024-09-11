@@ -156,6 +156,7 @@ open class MoneyTextWatcher(
     private val field: WeakReference<EditText> = WeakReference(field)
 
     override fun afterTextChanged(edit: Editable?) {
+      synchronized(this) {
         this.field.get()?.removeTextChangedListener(this)
         edit?.replace(0, edit.length, this.afterText)
 
@@ -172,6 +173,7 @@ open class MoneyTextWatcher(
 
         this.field.get()?.addTextChangedListener(this)
         this.listener?.afterTextChanged(edit)
+      }
     }
 
     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
