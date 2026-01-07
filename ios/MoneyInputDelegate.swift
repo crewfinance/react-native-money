@@ -146,7 +146,8 @@ open class MoneyInputDelegate: NSObject, UITextFieldDelegate {
         }
         
         // Apply any offsets caused by new commas to the left of the cursor
-        if (textField.caretPosition > 0) {
+        let isFullReplacement = range.location == 0 && range.length == originalString.count
+        if (textField.caretPosition > 0 && !isFullReplacement) {
             let commasAfter = priceString.prefix(textField.caretPosition - 1).filter(formatter.groupingSeparator.contains).count
             let commasBefore = originalString.prefix(textField.caretPosition - 1).filter(formatter.groupingSeparator.contains).count
             let offset = commasAfter - commasBefore
